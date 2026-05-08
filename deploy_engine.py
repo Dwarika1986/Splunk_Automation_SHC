@@ -133,7 +133,8 @@ def configure_deployer(
         sudo=True,
         log=log,
     )
-    run(deployer, f"{SPLUNK_HOME}/bin/splunk restart -auth admin:{sh_quote(splunk_admin_password)}", sudo=True, log=log)
+    # `splunk restart` is a local action and does not take `-auth` (passing it can bubble to splunkd as "Bad Option -a").
+    run(deployer, f"{SPLUNK_HOME}/bin/splunk restart", sudo=True, log=log)
 
 
 def configure_sh_member(
@@ -159,7 +160,7 @@ def configure_sh_member(
         sudo=True,
         log=log,
     )
-    run(sh, f"{SPLUNK_HOME}/bin/splunk restart -auth admin:{sh_quote(splunk_admin_password)}", sudo=True, log=log)
+    run(sh, f"{SPLUNK_HOME}/bin/splunk restart", sudo=True, log=log)
 
 
 def bootstrap_captain(
