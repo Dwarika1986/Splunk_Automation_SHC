@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Splunk SHC Automation</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+      .wrap { max-width: 980px; margin: 0 auto; }
+      .card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin: 16px 0; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      label { font-weight: 600; display: block; margin-bottom: 6px; }
+      input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; }
+      .row { margin: 10px 0; }
+      .btn { padding: 10px 14px; border: 1px solid #111827; border-radius: 10px; background: #111827; color: white; cursor: pointer; }
+      .muted { color: #6b7280; font-size: 13px; }
+      .small { font-size: 13px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>Splunk Search Head Clustering (3 SH + 1 Deployer)</h2>
+      <p class="muted">
+        Upload your PEM key, enter host IPs, and deploy Splunk 10.0.0 to <code>/opt/splunk</code>.
+      </p>
+
+      <div class="card">
+        <h3>1) Deploy SH Cluster</h3>
+        <form method="post" action="/deploy" enctype="multipart/form-data">
+          <div class="grid">
+            <div class="row">
+              <label>SSH PEM key</label>
+              <input type="file" name="pem" accept=".pem,.key,*/*" required />
+              <div class="muted small">PEM stays on this machine under <code>uploads/</code>.</div>
+            </div>
+            <div class="row">
+              <label>SSH username (same for all hosts)</label>
+              <input name="username" placeholder="ec2-user / ubuntu / splunkadmin" required />
+            </div>
+            <div class="row">
+              <label>Deployer IP</label>
+              <input name="deployer_ip" placeholder="10.0.0.10" required />
+            </div>
+            <div class="row">
+              <label>SH1 IP</label>
+              <input name="sh1_ip" placeholder="10.0.0.11" required />
+            </div>
+            <div class="row">
+              <label>SH2 IP</label>
+              <input name="sh2_ip" placeholder="10.0.0.12" required />
+            </div>
+            <div class="row">
+              <label>SH3 IP</label>
+              <input name="sh3_ip" placeholder="10.0.0.13" required />
+            </div>
+            <div class="row">
+              <label>Splunk admin password</label>
+              <input name="splunk_admin_password" type="password" required />
+            </div>
+            <div class="row">
+              <label>SHC secret (optional)</label>
+              <input name="shc_secret" placeholder="leave blank to auto-generate" />
+            </div>
+          </div>
+          <div class="row">
+            <label>
+              <input type="checkbox" name="force_sh1_captain" checked />
+              Force SH1 to become captain
+            </label>
+            <div class="muted small">If unchecked, Splunk will elect a captain automatically.</div>
+          </div>
+          <button class="btn" type="submit">Deploy SH Cluster</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>2) Deploy an App (folder) via Deployer</h3>
+        <p class="muted small">
+          This creates <code>$SPLUNK_HOME/etc/shcluster/apps/&lt;app&gt;</code> on the deployer and pushes the bundle to the captain.
+        </p>
+        <form method="post" action="/deploy-app" enctype="multipart/form-data">
+          <div class="grid">
+            <div class="row">
+              <label>SSH PEM key</label>
+              <input type="file" name="pem_app" accept=".pem,.key,*/*" required />
+            </div>
+            <div class="row">
+              <label>SSH username</label>
+              <input name="username_app" required />
+            </div>
+            <div class="row">
+              <label>Deployer IP</label>
+              <input name="deployer_ip_app" required />
+            </div>
+            <div class="row">
+              <label>Captain IP (usually SH1)</label>
+              <input name="captain_ip_app" required />
+            </div>
+            <div class="row">
+              <label>Splunk admin password</label>
+              <input name="splunk_admin_password_app" type="password" required />
+            </div>
+            <div class="row">
+              <label>App folder name</label>
+              <input name="app_folder_name" placeholder="my_custom_app" required />
+            </div>
+          </div>
+          <button class="btn" type="submit">Deploy App</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

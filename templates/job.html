@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Job {{ job_id }}</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 24px; }
+      .wrap { max-width: 980px; margin: 0 auto; }
+      pre { background: #0b1020; color: #e5e7eb; padding: 14px; border-radius: 10px; overflow: auto; }
+      .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #eef2ff; }
+      .muted { color: #6b7280; font-size: 13px; }
+      a { color: #1f2937; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>Job</h2>
+      <div class="muted">
+        <a href="/">← back</a>
+      </div>
+      <p><span class="pill" id="status">loading…</span> <span class="muted">{{ job_id }}</span></p>
+
+      <h3>Logs</h3>
+      <pre id="logs">(loading…)</pre>
+
+      <h3>Result</h3>
+      <pre id="result">(loading…)</pre>
+
+      <script>
+        async function poll() {
+          const res = await fetch("/api/jobs/{{ job_id }}");
+          const data = await res.json();
+          document.getElementById("status").textContent = data.status;
+          document.getElementById("logs").textContent = (data.logs || []).join("\n");
+          if (data.error) {
+            document.getElementById("result").textContent = data.error;
+          } else if (data.result) {
+            document.getElementById("result").textContent = JSON.stringify(data.result, null, 2);
+          } else {
+            document.getElementById("result").textContent = "(no result yet)";
+          }
+          if (data.status === "running" || data.status === "queued") {
+            setTimeout(poll, 1500);
+          }
+        }
+        poll();
+      </script>
+    </div>
+  </body>
+</html>
